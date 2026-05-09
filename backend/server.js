@@ -9,6 +9,7 @@ const consultationRoutes = require('./routes/consultations');
 const utilisateurRoutes = require('./routes/utilisateurs');
 const constantesRoutes = require('./routes/constantes');
 const antecedentRoutes = require('./routes/antecedents');
+const hopitauxRoutes = require('./routes/hopitaux');
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use('/api/consultations', consultationRoutes);
 app.use('/api/utilisateurs', utilisateurRoutes);
 app.use('/api/constantes', constantesRoutes);
 app.use('/api/antecedents', antecedentRoutes);
+app.use('/api/hopitaux', hopitauxRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'API Dossier Médical Bénin - OK ✅' });

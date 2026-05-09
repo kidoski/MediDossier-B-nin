@@ -1,22 +1,36 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getUtilisateurs, ajouterUtilisateur, modifierUtilisateur, supprimerUtilisateur } from '../services/api';
+import axios from 'axios';
 
 export default function Utilisateurs() {
   const [utilisateurs, setUtilisateurs] = useState([]);
+  const [hopitaux, setHopitaux] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [showModifier, setShowModifier] = useState(false);
   const [utilisateurSelectionne, setUtilisateurSelectionne] = useState(null);
   const [message, setMessage] = useState('');
-  const [form, setForm] = useState({ nom: '', prenom: '', email: '', mot_de_passe: '', role: 'medecin', telephone: '' });
-  const [formModifier, setFormModifier] = useState({ nom: '', prenom: '', mot_de_passe: '' });
+  const [form, setForm] = useState({ nom: '', prenom: '', email: '', mot_de_passe: '', role: 'medecin', telephone: '', hopital_id: '' });
+  const [formModifier, setFormModifier] = useState({ nom: '', prenom: '', mot_de_passe: '', hopital_id: '' });
   const navigate = useNavigate();
 
-  useEffect(() => { chargerUtilisateurs(); }, []);
+  useEffect(() => {
+    chargerUtilisateurs();
+    chargerHopitaux();
+  }, []);
 
   const chargerUtilisateurs = async () => {
     const res = await getUtilisateurs();
     setUtilisateurs(res.data);
+  };
+
+  const chargerHopitaux = async () => {
+    try {
+      const res = await axios.get('http://localhost:5000/api/hopitaux');
+      setHopitaux(res.data);
+    } catch (err) {
+      console.error('Erreur chargement hôpitaux');
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -25,7 +39,7 @@ export default function Utilisateurs() {
       await ajouterUtilisateur(form);
       setMessage('✅ Utilisateur créé avec succès !');
       setShowForm(false);
-      setForm({ nom: '', prenom: '', email: '', mot_de_passe: '', role: 'medecin', telephone: '' });
+      setForm({ nom: '', prenom: '', email: '', mot_de_passe: '', role: 'medecin', telephone: '', hopital_id: '' });
       chargerUtilisateurs();
     } catch (err) {
       setMessage(`❌ ${err.response?.data?.message || 'Erreur lors de la création'}`);
@@ -47,7 +61,7 @@ export default function Utilisateurs() {
 
   const ouvrirModifier = (u) => {
     setUtilisateurSelectionne(u);
-    setFormModifier({ nom: u.nom, prenom: u.prenom, mot_de_passe: '' });
+    setFormModifier({ nom: u.nom, prenom: u.prenom, mot_de_passe: '', hopital_id: u.hopital_id || '' });
     setShowModifier(true);
     setShowForm(false);
   };
@@ -125,6 +139,15 @@ export default function Utilisateurs() {
                   <option value="admin">Admin</option>
                 </select>
               </div>
+              <div style={{...styles.champ, gridColumn: 'span 2'}}>
+                <label style={styles.label}>🏥 Hôpital</label>
+                <select value={form.hopital_id} onChange={e => setForm({...form, hopital_id: e.target.value})} style={styles.input}>
+                  <option value="">-- Sélectionner un hôpital --</option>
+                  {hopitaux.map(h => (
+                    <option key={h.id} value={h.id}>{h.nom} — {h.ville}</option>
+                  ))}
+                </select>
+              </div>
               <button type="submit" style={styles.boutonSoumettre}>Créer l'utilisateur</button>
             </form>
           </div>
@@ -146,6 +169,15 @@ export default function Utilisateurs() {
                 <label style={styles.label}>Nouveau mot de passe <span style={{color: '#aaa', fontWeight: '400'}}>(laisser vide pour ne pas changer)</span></label>
                 <input type="password" placeholder="Nouveau mot de passe..." value={formModifier.mot_de_passe} onChange={e => setFormModifier({...formModifier, mot_de_passe: e.target.value})} style={styles.input} />
               </div>
+              <div style={{...styles.champ, gridColumn: 'span 2'}}>
+                <label style={styles.label}>🏥 Hôpital</label>
+                <select value={formModifier.hopital_id} onChange={e => setFormModifier({...formModifier, hopital_id: e.target.value})} style={styles.input}>
+                  <option value="">-- Sélectionner un hôpital --</option>
+                  {hopitaux.map(h => (
+                    <option key={h.id} value={h.id}>{h.nom} — {h.ville}</option>
+                  ))}
+                </select>
+              </div>
               <button type="submit" style={{...styles.boutonSoumettre, backgroundColor: '#fb8c00'}}>Enregistrer les modifications</button>
               <button type="button" onClick={() => { setShowModifier(false); setUtilisateurSelectionne(null); }} style={{...styles.boutonSoumettre, backgroundColor: '#666'}}>Annuler</button>
             </form>
@@ -160,12 +192,14 @@ export default function Utilisateurs() {
                 <th style={styles.th}>Email</th>
                 <th style={styles.th}>Téléphone</th>
                 <th style={styles.th}>Rôle</th>
+                <th style={styles.th}>Hôpital</th>
                 <th style={styles.th}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {utilisateurs.map(u => {
                 const config = roleConfig[u.role] || { couleur: '#666', bg: '#f5f5f5', label: u.role };
+                const hopital = hopitaux.find(h => h.id === u.hopital_id);
                 return (
                   <tr key={u.id} style={styles.tr}>
                     <td style={styles.td}>
@@ -182,6 +216,13 @@ export default function Utilisateurs() {
                       <span style={{ backgroundColor: config.bg, color: config.couleur, padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '600' }}>
                         {config.label}
                       </span>
+                    </td>
+                    <td style={styles.td}>
+                      {hopital ? (
+                        <span style={styles.hopitalBadge}>{hopital.nom}</span>
+                      ) : (
+                        <span style={styles.hopitalVide}>Non assigné</span>
+                      )}
                     </td>
                     <td style={styles.td}>
                       <div style={styles.actions}>
@@ -209,7 +250,7 @@ const styles = {
   navLogo: { width: '34px', height: '34px', backgroundColor: '#1a73e8', color: 'white', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', fontWeight: 'bold' },
   navTitre: { fontSize: '18px', fontWeight: 'bold', color: '#1a73e8' },
   retour: { padding: '8px 18px', backgroundColor: 'white', color: '#1a73e8', border: '1.5px solid #1a73e8', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' },
-  contenu: { maxWidth: '1000px', margin: '0 auto', padding: '30px 20px' },
+  contenu: { maxWidth: '1100px', margin: '0 auto', padding: '30px 20px' },
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' },
   titre: { fontSize: '24px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 4px' },
   sousTitre: { fontSize: '14px', color: '#888', margin: 0 },
@@ -220,7 +261,7 @@ const styles = {
   form: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' },
   champ: { display: 'flex', flexDirection: 'column', gap: '6px' },
   label: { fontSize: '13px', fontWeight: '600', color: '#555' },
-  input: { padding: '10px 14px', borderRadius: '8px', border: '1.5px solid #e0e0e0', fontSize: '14px', outline: 'none', backgroundColor: '#fafafa' },
+  input: { padding: '10px 14px', borderRadius: '8px', border: '1.5px solid #e0e0e0', fontSize: '14px', outline: 'none', backgroundColor: '#fafafa', color: '#333' },
   boutonSoumettre: { padding: '12px', backgroundColor: '#43a047', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: '15px', fontWeight: '600' },
   tableCard: { backgroundColor: 'white', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: '1px solid #e8ecf0' },
   table: { width: '100%', borderCollapse: 'collapse' },
@@ -233,4 +274,6 @@ const styles = {
   actions: { display: 'flex', gap: '8px' },
   btnOrange: { padding: '6px 12px', backgroundColor: '#fff3e0', color: '#fb8c00', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' },
   btnRed: { padding: '6px 10px', backgroundColor: '#fff3f3', color: '#e53935', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' },
+  hopitalBadge: { backgroundColor: '#e8f5e9', color: '#43a047', padding: '4px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: '600' },
+  hopitalVide: { color: '#aaa', fontSize: '12px', fontStyle: 'italic' },
 };
