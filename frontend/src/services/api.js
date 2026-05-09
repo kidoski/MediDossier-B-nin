@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+const BASE_URL = 'https://medidossier-backend.onrender.com/api';
+
 const API = axios.create({
-  baseURL: 'https://medidossier-backend.onrender.com/api',
+  baseURL: BASE_URL,
 });
 
 API.interceptors.request.use((config) => {
@@ -41,3 +43,8 @@ export const getConstantesPatient = (patient_id) => API.get(`/constantes/patient
 export const ajouterAntecedent = (data) => API.post('/antecedents', data);
 export const getAntecedentsPatient = (patient_id) => API.get(`/antecedents/patient/${patient_id}`);
 export const supprimerAntecedent = (id) => API.delete(`/antecedents/${id}`);
+
+// Hôpitaux
+export const getHopitaux = () => API.get('/hopitaux');
+export const ajouterHopital = (data) => API.post('/hopitaux', data);
+export const supprimerHopital = (id) => API.delete(`/hopitaux/${id}`);

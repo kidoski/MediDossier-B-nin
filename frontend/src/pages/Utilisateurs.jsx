@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getUtilisateurs, ajouterUtilisateur, modifierUtilisateur, supprimerUtilisateur } from '../services/api';
-import axios from 'axios';
+import { getUtilisateurs, ajouterUtilisateur, modifierUtilisateur, supprimerUtilisateur, getHopitaux } from '../services/api';
 
 export default function Utilisateurs() {
   const [utilisateurs, setUtilisateurs] = useState([]);
@@ -26,7 +25,7 @@ export default function Utilisateurs() {
 
   const chargerHopitaux = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/hopitaux');
+      const res = await getHopitaux();
       setHopitaux(res.data);
     } catch (err) {
       console.error('Erreur chargement hôpitaux');
