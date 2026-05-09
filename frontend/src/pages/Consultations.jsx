@@ -10,7 +10,6 @@ export default function Consultations() {
   const [showForm, setShowForm] = useState(false);
   const [message, setMessage] = useState('');
   const [form, setForm] = useState({ motif: '', diagnostic: '', traitement: '', observations: '' });
-  const utilisateur = JSON.parse(localStorage.getItem('utilisateur'));
 
   useEffect(() => { chargerDonnees(); }, []);
 
@@ -91,43 +90,19 @@ export default function Consultations() {
         <h2 style={styles.sectionTitre}>Historique — {consultations.length} consultation(s)</h2>
 
         {consultations.length === 0 ? (
-          <div style={styles.vide}>
-            <p style={styles.videTexte}>📋 Aucune consultation enregistrée pour ce patient.</p>
-          </div>
+          <div style={styles.vide}><p style={styles.videTexte}>📋 Aucune consultation enregistrée.</p></div>
         ) : (
           consultations.map(c => (
             <div key={c.id} style={styles.consultationCard}>
               <div style={styles.consultationHeader}>
-                <div>
-                  <span style={styles.dateLabel}>
-                    📅 {new Date(c.date_consultation).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })}
-                  </span>
-                </div>
+                <span style={styles.dateLabel}>📅 {new Date(c.date_consultation).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
                 <span style={styles.medecinLabel}>👨‍⚕️ Dr. {c.medecin_prenom} {c.medecin_nom}</span>
               </div>
               <div style={styles.consultationBody}>
-                <div style={styles.infoRow}>
-                  <span style={styles.infoLabel}>Motif</span>
-                  <span style={styles.infoValue}>{c.motif}</span>
-                </div>
-                {c.diagnostic && (
-                  <div style={styles.infoRow}>
-                    <span style={styles.infoLabel}>Diagnostic</span>
-                    <span style={styles.infoValue}>{c.diagnostic}</span>
-                  </div>
-                )}
-                {c.traitement && (
-                  <div style={styles.infoRow}>
-                    <span style={styles.infoLabel}>Traitement</span>
-                    <span style={styles.infoValue}>{c.traitement}</span>
-                  </div>
-                )}
-                {c.observations && (
-                  <div style={styles.infoRow}>
-                    <span style={styles.infoLabel}>Observations</span>
-                    <span style={styles.infoValue}>{c.observations}</span>
-                  </div>
-                )}
+                <div style={styles.infoRow}><span style={styles.infoLabel}>Motif</span><span style={styles.infoValue}>{c.motif}</span></div>
+                {c.diagnostic && <div style={styles.infoRow}><span style={styles.infoLabel}>Diagnostic</span><span style={styles.infoValue}>{c.diagnostic}</span></div>}
+                {c.traitement && <div style={styles.infoRow}><span style={styles.infoLabel}>Traitement</span><span style={styles.infoValue}>{c.traitement}</span></div>}
+                {c.observations && <div style={styles.infoRow}><span style={styles.infoLabel}>Observations</span><span style={styles.infoValue}>{c.observations}</span></div>}
               </div>
             </div>
           ))
@@ -158,8 +133,8 @@ const styles = {
   form: { display: 'flex', flexDirection: 'column', gap: '16px' },
   champ: { display: 'flex', flexDirection: 'column', gap: '6px' },
   label: { fontSize: '13px', fontWeight: '600', color: '#555' },
-  input: { padding: '10px 14px', borderRadius: '8px', border: '1.5px solid #e0e0e0', fontSize: '14px', outline: 'none', backgroundColor: '#fafafa' },
-  textarea: { padding: '10px 14px', borderRadius: '8px', border: '1.5px solid #e0e0e0', fontSize: '14px', outline: 'none', backgroundColor: '#fafafa', resize: 'vertical' },
+  input: { padding: '10px 14px', borderRadius: '8px', border: '1.5px solid #e0e0e0', fontSize: '14px', outline: 'none', backgroundColor: 'white', color: '#333' },
+  textarea: { padding: '10px 14px', borderRadius: '8px', border: '1.5px solid #e0e0e0', fontSize: '14px', outline: 'none', backgroundColor: 'white', resize: 'vertical', color: '#333' },
   boutonSoumettre: { padding: '12px', backgroundColor: '#43a047', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: '15px', fontWeight: '600' },
   sectionTitre: { fontSize: '16px', fontWeight: '600', color: '#333', marginBottom: '16px' },
   vide: { backgroundColor: 'white', borderRadius: '16px', padding: '40px', textAlign: 'center', border: '1px solid #e8ecf0' },

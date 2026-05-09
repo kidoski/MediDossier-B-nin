@@ -138,18 +138,12 @@ export default function Patients() {
             <tbody>
               {patients.map(p => (
                 <tr key={p.id} style={styles.tr}>
-                  <td style={styles.td}>
-                    <span style={styles.nudBadge}>{p.NUD}</span>
-                  </td>
-                  <td style={styles.td}>
-                    <strong>{p.nom} {p.prenom}</strong>
-                  </td>
+                  <td style={styles.td}><span style={styles.nudBadge}>{p.NUD}</span></td>
+                  <td style={styles.td}><strong>{p.nom} {p.prenom}</strong></td>
                   <td style={styles.td}>{new Date(p.date_naissance).toLocaleDateString('fr-FR')}</td>
                   <td style={styles.td}>{p.sexe === 'M' ? '👨 M' : '👩 F'}</td>
                   <td style={styles.td}>{p.telephone}</td>
-                  <td style={styles.td}>
-                    <span style={styles.groupeBadge}>{p.groupe_sanguin}</span>
-                  </td>
+                  <td style={styles.td}><span style={styles.groupeBadge}>{p.groupe_sanguin}</span></td>
                   <td style={styles.td}>
                     <div style={styles.actions}>
                       {(isMedecin || isAdmin) && (
@@ -191,11 +185,11 @@ const styles = {
   form: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' },
   champ: { display: 'flex', flexDirection: 'column', gap: '6px' },
   label: { fontSize: '13px', fontWeight: '600', color: '#555' },
-  input: { padding: '10px 14px', borderRadius: '8px', border: '1.5px solid #e0e0e0', fontSize: '14px', outline: 'none', backgroundColor: '#fafafa' },
+  input: { padding: '10px 14px', borderRadius: '8px', border: '1.5px solid #e0e0e0', fontSize: '14px', outline: 'none', backgroundColor: 'white', color: '#333' },
   boutonSoumettre: { gridColumn: 'span 2', padding: '12px', backgroundColor: '#43a047', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: '15px', fontWeight: '600' },
   searchBox: { position: 'relative', marginBottom: '20px' },
   searchIcon: { position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', fontSize: '16px' },
-  searchInput: { width: '100%', padding: '12px 14px 12px 44px', borderRadius: '10px', border: '1.5px solid #e0e0e0', fontSize: '14px', outline: 'none', backgroundColor: 'white', boxSizing: 'border-box' },
+  searchInput: { width: '100%', padding: '12px 14px 12px 44px', borderRadius: '10px', border: '1.5px solid #e0e0e0', fontSize: '14px', outline: 'none', backgroundColor: 'white', boxSizing: 'border-box', color: '#333' },
   tableCard: { backgroundColor: 'white', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: '1px solid #e8ecf0' },
   table: { width: '100%', borderCollapse: 'collapse' },
   thead: { backgroundColor: '#1a73e8' },

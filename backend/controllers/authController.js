@@ -17,11 +17,25 @@ exports.login = async (req, res) => {
     if (!validPassword) {
       return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
     }
+
+    // Récupérer le nom de l'hôpital séparément
+    let hopital_nom = null;
+    if (utilisateur.hopital_id) {
+      const [hopitaux] = await db.query(
+        'SELECT nom FROM hopitaux WHERE id = ?',
+        [utilisateur.hopital_id]
+      );
+      if (hopitaux.length > 0) {
+        hopital_nom = hopitaux[0].nom;
+      }
+    }
+
     const token = jwt.sign(
       { id: utilisateur.id, role: utilisateur.role, hopital_id: utilisateur.hopital_id },
       process.env.JWT_SECRET,
       { expiresIn: '8h' }
     );
+
     res.json({
       token,
       utilisateur: {
@@ -31,7 +45,7 @@ exports.login = async (req, res) => {
         email: utilisateur.email,
         role: utilisateur.role,
         hopital_id: utilisateur.hopital_id,
-        hopital_nom: null
+        hopital_nom: hopital_nom
       }
     });
   } catch (err) {

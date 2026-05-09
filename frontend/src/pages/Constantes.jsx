@@ -58,9 +58,7 @@ export default function Constantes() {
             )}
           </div>
           {isInfirmier && (
-            <button onClick={() => setShowForm(!showForm)} style={styles.boutonAjouter}>
-              + Enregistrer
-            </button>
+            <button onClick={() => setShowForm(!showForm)} style={styles.boutonAjouter}>+ Enregistrer</button>
           )}
         </div>
 
@@ -102,14 +100,12 @@ export default function Constantes() {
         <h2 style={styles.sectionTitre}>Historique — {constantes.length} mesure(s)</h2>
 
         {constantes.length === 0 ? (
-          <div style={styles.vide}>
-            <p style={styles.videTexte}>🩺 Aucune constante enregistrée pour ce patient.</p>
-          </div>
+          <div style={styles.vide}><p style={styles.videTexte}>🩺 Aucune constante enregistrée.</p></div>
         ) : (
           constantes.map(c => (
             <div key={c.id} style={styles.constanteCard}>
               <div style={styles.constanteHeader}>
-                <span style={styles.dateLabel}>📅 {new Date(c.date_mesure).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                <span style={styles.dateLabel}>📅 {new Date(c.date_mesure).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
                 <span style={styles.infirmierLabel}>👩‍⚕️ {c.infirmier_prenom} {c.infirmier_nom}</span>
               </div>
               <div style={styles.constanteBody}>
@@ -151,8 +147,8 @@ const styles = {
   form: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' },
   champ: { display: 'flex', flexDirection: 'column', gap: '6px' },
   label: { fontSize: '13px', fontWeight: '600', color: '#555' },
-  input: { padding: '10px 14px', borderRadius: '8px', border: '1.5px solid #e0e0e0', fontSize: '14px', outline: 'none', backgroundColor: '#fafafa' },
-  textarea: { padding: '10px 14px', borderRadius: '8px', border: '1.5px solid #e0e0e0', fontSize: '14px', outline: 'none', backgroundColor: '#fafafa', resize: 'vertical' },
+  input: { padding: '10px 14px', borderRadius: '8px', border: '1.5px solid #e0e0e0', fontSize: '14px', outline: 'none', backgroundColor: 'white', color: '#333' },
+  textarea: { padding: '10px 14px', borderRadius: '8px', border: '1.5px solid #e0e0e0', fontSize: '14px', outline: 'none', backgroundColor: 'white', resize: 'vertical', color: '#333' },
   boutonSoumettre: { padding: '12px', backgroundColor: '#43a047', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: '15px', fontWeight: '600' },
   sectionTitre: { fontSize: '16px', fontWeight: '600', color: '#333', marginBottom: '16px' },
   vide: { backgroundColor: 'white', borderRadius: '16px', padding: '40px', textAlign: 'center', border: '1px solid #e8ecf0' },
