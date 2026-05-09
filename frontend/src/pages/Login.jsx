@@ -1,27 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { login, getHopitaux } from '../services/api';
+import { login } from '../services/api';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [mot_de_passe, setMotDePasse] = useState('');
-  const [hopitaux, setHopitaux] = useState([]);
   const [erreur, setErreur] = useState('');
   const [chargement, setChargement] = useState(false);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    chargerHopitaux();
-  }, []);
-
-  const chargerHopitaux = async () => {
-    try {
-      const res = await getHopitaux();
-      setHopitaux(res.data);
-    } catch (err) {
-      console.error('Erreur chargement hôpitaux');
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -106,18 +92,6 @@ export default function Login() {
             </button>
           </form>
 
-          {hopitaux.length > 0 && (
-            <div style={styles.hopitauxBox}>
-              <p style={styles.hopitauxTitre}>🏥 Hôpitaux disponibles :</p>
-              {hopitaux.map(h => (
-                <div key={h.id} style={styles.hopitalItem}>
-                  <span style={styles.hopitalNom}>{h.nom}</span>
-                  <span style={styles.hopitalVille}>{h.ville}</span>
-                </div>
-              ))}
-            </div>
-          )}
-
           <p style={styles.footerText}>🏥 Réservé au personnel médical autorisé</p>
         </div>
       </div>
@@ -146,13 +120,8 @@ const styles = {
   label: { fontSize: '14px', fontWeight: '600', color: '#333' },
   inputWrapper: { position: 'relative', display: 'flex', alignItems: 'center' },
   inputIcon: { position: 'absolute', left: '14px', fontSize: '16px', zIndex: 1 },
-  input: { width: '100%', padding: '12px 14px 12px 44px', borderRadius: '10px', border: '1.5px solid #e0e0e0', fontSize: '15px', outline: 'none', backgroundColor: '#fafafa', boxSizing: 'border-box', color: '#333' },
+  input: { width: '100%', padding: '12px 14px 12px 44px', borderRadius: '10px', border: '1.5px solid #e0e0e0', fontSize: '15px', outline: 'none', backgroundColor: 'white', boxSizing: 'border-box', color: '#333' },
   erreurBox: { backgroundColor: '#fff3f3', border: '1px solid #ffcdd2', borderRadius: '8px', padding: '12px 16px', color: '#c62828', fontSize: '14px' },
   bouton: { padding: '14px', backgroundColor: '#1a73e8', color: 'white', border: 'none', borderRadius: '10px', fontSize: '16px', fontWeight: '600', cursor: 'pointer', marginTop: '8px' },
-  hopitauxBox: { marginTop: '20px', padding: '16px', backgroundColor: '#f8fafc', borderRadius: '10px', border: '1px solid #e8ecf0' },
-  hopitauxTitre: { fontSize: '13px', fontWeight: '600', color: '#555', marginBottom: '10px' },
-  hopitalItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid #f0f0f0' },
-  hopitalNom: { fontSize: '13px', color: '#333', fontWeight: '500' },
-  hopitalVille: { fontSize: '12px', color: '#888', backgroundColor: '#e8f0fe', padding: '2px 8px', borderRadius: '10px' },
   footerText: { fontSize: '13px', color: '#888', textAlign: 'center', marginTop: '20px', borderTop: '1px solid #f0f0f0', paddingTop: '16px' },
 };

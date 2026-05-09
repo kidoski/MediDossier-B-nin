@@ -3,7 +3,8 @@ const db = require('../config/db');
 exports.creerConsultation = async (req, res) => {
   const { patient_id, motif, diagnostic, traitement, observations } = req.body;
   const medecin_id = req.utilisateur.id;
-  const hopital_id = req.utilisateur.hopital_id;
+  const hopital_id = req.utilisateur.hopital_id || null;
+
   try {
     const [result] = await db.query(
       `INSERT INTO consultations (patient_id, medecin_id, hopital_id, motif, diagnostic, traitement, observations)
@@ -18,7 +19,8 @@ exports.creerConsultation = async (req, res) => {
 
 exports.getConsultationsPatient = async (req, res) => {
   const { patient_id } = req.params;
-  const hopital_id = req.utilisateur.hopital_id;
+  const hopital_id = req.utilisateur.hopital_id || null;
+
   try {
     let query, params;
     if (!hopital_id) {
