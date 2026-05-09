@@ -6,10 +6,7 @@ exports.login = async (req, res) => {
   const { email, mot_de_passe } = req.body;
   try {
     const [rows] = await db.query(
-      `SELECT u.*, h.nom as hopital_nom 
-       FROM utilisateurs u
-       LEFT JOIN hopitaux h ON u.hopital_id = h.id
-       WHERE u.email = ?`,
+      'SELECT * FROM utilisateurs WHERE email = ?',
       [email]
     );
     if (rows.length === 0) {
@@ -34,7 +31,7 @@ exports.login = async (req, res) => {
         email: utilisateur.email,
         role: utilisateur.role,
         hopital_id: utilisateur.hopital_id,
-        hopital_nom: utilisateur.hopital_nom
+        hopital_nom: null
       }
     });
   } catch (err) {
