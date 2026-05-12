@@ -86,7 +86,7 @@ export default function Dashboard() {
         <div style={styles.bienvenue}>
           <div>
             <h1 style={styles.bienveneTitre}>
-              Bonjour, {utilisateur?.prenom} 👋
+              Bonjour, {utilisateur?.prenom} 
             </h1>
             <p style={styles.bienveneSousTitre}>
               Bienvenue sur votre tableau de bord — {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}

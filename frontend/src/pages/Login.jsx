@@ -38,10 +38,10 @@ export default function Login() {
           Conçue pour les médecins, infirmiers et administrateurs des établissements de santé.
         </p>
         <div style={styles.features}>
-          <div style={styles.feature}><span style={styles.featureIcon}>👥</span><span style={styles.featureText}>Patients</span></div>
-          <div style={styles.feature}><span style={styles.featureIcon}>📋</span><span style={styles.featureText}>Consultations</span></div>
-          <div style={styles.feature}><span style={styles.featureIcon}>🩺</span><span style={styles.featureText}>Constantes</span></div>
-          <div style={styles.feature}><span style={styles.featureIcon}>📁</span><span style={styles.featureText}>Antécédents</span></div>
+          <div style={styles.feature}><span style={styles.featureIcon}></span><span style={styles.featureText}>Patients</span></div>
+          <div style={styles.feature}><span style={styles.featureIcon}></span><span style={styles.featureText}>Consultations</span></div>
+          <div style={styles.feature}><span style={styles.featureIcon}></span><span style={styles.featureText}>Constantes</span></div>
+          <div style={styles.feature}><span style={styles.featureIcon}></span><span style={styles.featureText}>Antécédents</span></div>
         </div>
       </div>
 
@@ -69,7 +69,7 @@ export default function Login() {
             <div style={styles.champ}>
               <label style={styles.label}>Mot de passe</label>
               <div style={styles.inputWrapper}>
-                <span style={styles.inputIcon}>🔒</span>
+                <span style={styles.inputIcon}></span>
                 <input
                   type="password"
                   value={mot_de_passe}
@@ -83,7 +83,7 @@ export default function Login() {
 
             {erreur && (
               <div style={styles.erreurBox}>
-                <span>⚠️ {erreur}</span>
+                <span> {erreur}</span>
               </div>
             )}
 
