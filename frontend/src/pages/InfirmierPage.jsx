@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { saveVitaux, saveEnqueteSociale, savePansement, saveAnalyse, saveImagerie } from '../../services/api';
+import { saveVitaux, saveEnqueteSociale, savePansement, saveAnalyse, saveImagerie } from '../services/api';
 import { toast } from 'react-toastify';
 
 export default function InfirmierPage() {

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { saveConsultation, savePrescription, getDiagnostics } from '../../services/api';
+import { saveConsultation, savePrescription, getDiagnostics } from '../services/api';
 import { toast } from 'react-toastify';
 
 function DiagnosticSearch({ value, codeValue, onSelect }) {
