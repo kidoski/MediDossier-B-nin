@@ -16,8 +16,18 @@ export default function Login() {
     try {
       const res = await login({ email, mot_de_passe });
       localStorage.setItem('token', res.data.token);
-      localStorage.setItem('utilisateur', JSON.stringify(res.data.utilisateur));
-      navigate('/dashboard');
+
+      // ✅ CORRECTION : ton backend renvoie res.data.user (pas res.data.utilisateur)
+      const utilisateur = res.data.user || res.data.utilisateur;
+      localStorage.setItem('utilisateur', JSON.stringify(utilisateur));
+
+      // Redirection selon le rôle
+      const role = utilisateur?.role;
+      if (role === 'medecin') navigate('/dashboard');
+      else if (role === 'infirmier') navigate('/dashboard');
+      else if (role === 'accueil') navigate('/dashboard');
+      else navigate('/dashboard');
+
     } catch (err) {
       setErreur('Email ou mot de passe incorrect');
     } finally {
@@ -38,10 +48,10 @@ export default function Login() {
           Conçue pour les médecins, infirmiers et administrateurs des établissements de santé.
         </p>
         <div style={styles.features}>
-          <div style={styles.feature}><span style={styles.featureIcon}></span><span style={styles.featureText}>Patients</span></div>
-          <div style={styles.feature}><span style={styles.featureIcon}></span><span style={styles.featureText}>Consultations</span></div>
-          <div style={styles.feature}><span style={styles.featureIcon}></span><span style={styles.featureText}>Constantes</span></div>
-          <div style={styles.feature}><span style={styles.featureIcon}></span><span style={styles.featureText}>Antécédents</span></div>
+          <div style={styles.feature}><span style={styles.featureText}>👥 Patients</span></div>
+          <div style={styles.feature}><span style={styles.featureText}>🩺 Consultations</span></div>
+          <div style={styles.feature}><span style={styles.featureText}>❤️ Constantes</span></div>
+          <div style={styles.feature}><span style={styles.featureText}>📋 Antécédents</span></div>
         </div>
       </div>
 
@@ -69,7 +79,7 @@ export default function Login() {
             <div style={styles.champ}>
               <label style={styles.label}>Mot de passe</label>
               <div style={styles.inputWrapper}>
-                <span style={styles.inputIcon}></span>
+                <span style={styles.inputIcon}>🔒</span>
                 <input
                   type="password"
                   value={mot_de_passe}
@@ -83,7 +93,7 @@ export default function Login() {
 
             {erreur && (
               <div style={styles.erreurBox}>
-                <span> {erreur}</span>
+                ⚠️ {erreur}
               </div>
             )}
 
@@ -108,9 +118,8 @@ const styles = {
   topTitre: { fontSize: '16px', fontWeight: 'bold', color: 'white', marginBottom: '6px', lineHeight: '1.3' },
   description: { fontSize: '11px', color: 'rgba(255,255,255,0.85)', marginBottom: '10px', lineHeight: '1.5', maxWidth: '600px', margin: '0 auto 10px' },
   features: { display: 'flex', justifyContent: 'center', gap: '10px', flexWrap: 'wrap' },
-  feature: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px', backgroundColor: 'rgba(255,255,255,0.15)', padding: '6px 14px', borderRadius: '8px', minWidth: '65px' },
-  featureIcon: { fontSize: '18px' },
-  featureText: { fontSize: '10px', color: 'white', fontWeight: '500' },
+  feature: { display: 'flex', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.15)', padding: '6px 14px', borderRadius: '8px' },
+  featureText: { fontSize: '12px', color: 'white', fontWeight: '500' },
   bottom: { flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '30px 20px' },
   card: { backgroundColor: 'white', borderRadius: '20px', padding: '40px', width: '100%', maxWidth: '440px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', border: '1px solid #e8ecf0' },
   cardTitre: { fontSize: '24px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 8px', textAlign: 'center' },
