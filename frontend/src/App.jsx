@@ -15,25 +15,17 @@ import MedecinPage from './pages/Medecinpage';
 // HELPERS
 // ============================================================
 const getUser = () => {
-  try {
-    return JSON.parse(localStorage.getItem('utilisateur'));
-  } catch {
-    return null;
-  }
+  try { return JSON.parse(localStorage.getItem('utilisateur')); }
+  catch { return null; }
 };
-
 const getToken = () => localStorage.getItem('token');
 
 // ============================================================
 // ROUTES PROTÉGÉES
 // ============================================================
+const PrivateRoute = ({ children }) =>
+  getToken() ? children : <Navigate to="/login" />;
 
-// Route de base — vérifie juste le token
-const PrivateRoute = ({ children }) => {
-  return getToken() ? children : <Navigate to="/login" />;
-};
-
-// Route Admin uniquement
 const AdminRoute = ({ children }) => {
   const user = getUser();
   if (!getToken()) return <Navigate to="/login" />;
@@ -41,7 +33,6 @@ const AdminRoute = ({ children }) => {
   return children;
 };
 
-// Route Médecin uniquement
 const MedecinRoute = ({ children }) => {
   const user = getUser();
   if (!getToken()) return <Navigate to="/login" />;
@@ -49,7 +40,6 @@ const MedecinRoute = ({ children }) => {
   return children;
 };
 
-// Route Infirmier uniquement
 const InfirmierRoute = ({ children }) => {
   const user = getUser();
   if (!getToken()) return <Navigate to="/login" />;
@@ -57,7 +47,6 @@ const InfirmierRoute = ({ children }) => {
   return children;
 };
 
-// Route Accueil uniquement
 const AccueilRoute = ({ children }) => {
   const user = getUser();
   if (!getToken()) return <Navigate to="/login" />;
@@ -66,24 +55,13 @@ const AccueilRoute = ({ children }) => {
 };
 
 // ============================================================
-// REDIRECTION AUTOMATIQUE SELON LE RÔLE APRÈS LOGIN
+// REDIRECTION AUTOMATIQUE SELON LE RÔLE
 // ============================================================
 const HomeRedirect = () => {
   const user = getUser();
   if (!getToken()) return <Navigate to="/login" />;
-
-  switch (user?.role) {
-    case 'admin':
-      return <Navigate to="/dashboard" />;
-    case 'medecin':
-      return <Navigate to="/medecin" />;
-    case 'infirmier':
-      return <Navigate to="/infirmier" />;
-    case 'accueil':
-      return <Navigate to="/accueil" />;
-    default:
-      return <Navigate to="/dashboard" />;
-  }
+  // Tous les rôles vont au dashboard — il s'occupe d'afficher le bon contenu
+  return <Navigate to="/dashboard" />;
 };
 
 // ============================================================
@@ -94,80 +72,73 @@ function App() {
     <BrowserRouter>
       <Routes>
 
-        {/* Page de connexion */}
+        {/* Connexion */}
         <Route path="/login" element={<Login />} />
 
-        {/* Redirection automatique selon rôle */}
+        {/* Racine → dashboard */}
         <Route path="/" element={<HomeRedirect />} />
 
         {/* -------------------------------------------------- */}
-        {/* ADMIN — tableau de bord, utilisateurs, tout voir    */}
+        {/* DASHBOARD — adapté selon le rôle                    */}
         {/* -------------------------------------------------- */}
         <Route path="/dashboard" element={
           <PrivateRoute><Dashboard /></PrivateRoute>
         } />
+
+        {/* -------------------------------------------------- */}
+        {/* ADMIN                                               */}
+        {/* -------------------------------------------------- */}
         <Route path="/utilisateurs" element={
           <AdminRoute><Utilisateurs /></AdminRoute>
         } />
+
+        {/* -------------------------------------------------- */}
+        {/* PATIENTS — accessible à tous les rôles connectés   */}
+        {/* -------------------------------------------------- */}
         <Route path="/patients" element={
           <PrivateRoute><Patients /></PrivateRoute>
         } />
+        <Route path="/patients/:id/dossier" element={
+          <PrivateRoute><Dossierpatientpage /></PrivateRoute>
+        } />
 
         {/* -------------------------------------------------- */}
-        {/* ACCUEIL — recherche patient, création dossier       */}
+        {/* ACCUEIL                                             */}
         {/* -------------------------------------------------- */}
         <Route path="/accueil" element={
           <AccueilRoute><AcceuilPage /></AccueilRoute>
         } />
 
         {/* -------------------------------------------------- */}
-        {/* DOSSIER PATIENT UNIFIÉ — visible par tous           */}
+        {/* MÉDECIN                                             */}
         {/* -------------------------------------------------- */}
-        <Route path="/patients/:id/dossier" element={
-          <PrivateRoute><Dossierpatientpage /></PrivateRoute>
+        <Route path="/patients/:patientId/dossier/:dossierId/medecin" element={
+          <MedecinRoute><MedecinPage /></MedecinRoute>
         } />
-
-        {/* -------------------------------------------------- */}
-        {/* INFIRMIER — vitaux, pansements, enquête sociale     */}
-        {/* -------------------------------------------------- */}
-        <Route path="/infirmier" element={
-          <InfirmierRoute><Patients /></InfirmierRoute>
-        } />
-        <Route path="/constantes/:patient_id" element={
-          <InfirmierRoute><Constantes /></InfirmierRoute>
-        } />
-
-        {/* -------------------------------------------------- */}
-        {/* MÉDECIN — consultation, urgence, référence          */}
-        {/* Types de passage : Consultation / Urgence / Référence */}
-        {/* -------------------------------------------------- */}
-        <Route path="/medecin" element={
-          <MedecinRoute><Patients /></MedecinRoute>
-        } />
-
-        {/* Consultation normale */}
         <Route path="/consultations/:patient_id" element={
           <MedecinRoute><Consultations /></MedecinRoute>
         } />
-
-        {/* Urgence */}
         <Route path="/urgence/:patient_id" element={
-          <MedecinRoute><Consultations type="urgence" /></MedecinRoute>
+          <MedecinRoute><Consultations /></MedecinRoute>
         } />
-
-        {/* Référence */}
         <Route path="/reference/:patient_id" element={
-          <MedecinRoute><Consultations type="reference" /></MedecinRoute>
+          <MedecinRoute><Consultations /></MedecinRoute>
         } />
-
-        {/* Antécédents */}
         <Route path="/antecedents/:patient_id" element={
           <MedecinRoute><Antecedents /></MedecinRoute>
         } />
 
         {/* -------------------------------------------------- */}
-        {/* Page inconnue → retour login                        */}
+        {/* INFIRMIER                                           */}
         {/* -------------------------------------------------- */}
+        <Route path="/patients/:patientId/dossier/:dossierId/infirmier" element={
+          <InfirmierRoute><InfirmierPage /></InfirmierRoute>
+        } />
+        <Route path="/constantes/:patient_id" element={
+          <InfirmierRoute><Constantes /></InfirmierRoute>
+        } />
+
+        {/* Page inconnue */}
         <Route path="*" element={<Navigate to="/login" />} />
 
       </Routes>
