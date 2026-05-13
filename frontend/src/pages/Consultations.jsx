@@ -24,12 +24,12 @@ export default function Consultations() {
     e.preventDefault();
     try {
       await creerConsultation({ ...form, patient_id });
-      setMessage('✅ Consultation enregistrée avec succès !');
+      setMessage('Consultation enregistrée avec succès !');
       setShowForm(false);
       setForm({ motif: '', diagnostic: '', traitement: '', observations: '' });
       chargerDonnees();
     } catch (err) {
-      setMessage('❌ Erreur lors de l\'enregistrement');
+      setMessage('Erreur lors de l\'enregistrement');
     }
   };
 
@@ -46,7 +46,7 @@ export default function Consultations() {
       <div style={styles.contenu}>
         <div style={styles.header}>
           <div>
-            <h1 style={styles.titre}>📋 Consultations</h1>
+            <h1 style={styles.titre}>Consultations</h1>
             {patient && (
               <div style={styles.patientInfo}>
                 <span style={styles.nudBadge}>{patient.NUD}</span>
@@ -90,13 +90,13 @@ export default function Consultations() {
         <h2 style={styles.sectionTitre}>Historique — {consultations.length} consultation(s)</h2>
 
         {consultations.length === 0 ? (
-          <div style={styles.vide}><p style={styles.videTexte}>📋 Aucune consultation enregistrée.</p></div>
+          <div style={styles.vide}><p style={styles.videTexte}>Aucune consultation enregistrée.</p></div>
         ) : (
           consultations.map(c => (
             <div key={c.id} style={styles.consultationCard}>
               <div style={styles.consultationHeader}>
-                <span style={styles.dateLabel}>📅 {new Date(c.date_consultation).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
-                <span style={styles.medecinLabel}>👨‍⚕️ Dr. {c.medecin_prenom} {c.medecin_nom}</span>
+                <span style={styles.dateLabel}>{new Date(c.date_consultation).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
+                <span style={styles.medecinLabel}>Dr. {c.medecin_prenom} {c.medecin_nom}</span>
               </div>
               <div style={styles.consultationBody}>
                 <div style={styles.infoRow}><span style={styles.infoLabel}>Motif</span><span style={styles.infoValue}>{c.motif}</span></div>

@@ -1,7 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import Login from './pages/Login';
+import Login from './pages/login';
 import Dashboard from './pages/Dashboard';
 import Patients from './pages/Patients';
+import Dossierpatientpage from './pages/Dossierpatientpage';
 import Consultations from './pages/Consultations';
 import Utilisateurs from './pages/Utilisateurs';
 import Constantes from './pages/Constantes';
@@ -30,6 +31,7 @@ function App() {
         <Route path="/consultations/:patient_id" element={<PrivateRoute><Consultations /></PrivateRoute>} />
         <Route path="/constantes/:patient_id" element={<PrivateRoute><Constantes /></PrivateRoute>} />
         <Route path="/antecedents/:patient_id" element={<PrivateRoute><Antecedents /></PrivateRoute>} />
+        <Route path="/patients/:id/dossier" element={<PrivateRoute><Dossierpatientpage /></PrivateRoute>} />
         <Route path="/utilisateurs" element={<AdminRoute><Utilisateurs /></AdminRoute>} />
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>

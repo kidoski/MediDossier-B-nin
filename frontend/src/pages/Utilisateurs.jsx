@@ -1,278 +1,68 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { getUtilisateurs, ajouterUtilisateur, modifierUtilisateur, supprimerUtilisateur, getHopitaux } from '../services/api';
+import { getUtilisateurs } from '../services/api';
 
 export default function Utilisateurs() {
   const [utilisateurs, setUtilisateurs] = useState([]);
-  const [hopitaux, setHopitaux] = useState([]);
-  const [showForm, setShowForm] = useState(false);
-  const [showModifier, setShowModifier] = useState(false);
-  const [utilisateurSelectionne, setUtilisateurSelectionne] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
-  const [form, setForm] = useState({ nom: '', prenom: '', email: '', mot_de_passe: '', role: 'medecin', telephone: '', hopital_id: '' });
-  const [formModifier, setFormModifier] = useState({ nom: '', prenom: '', mot_de_passe: '', hopital_id: '' });
-  const navigate = useNavigate();
 
   useEffect(() => {
     chargerUtilisateurs();
-    chargerHopitaux();
   }, []);
 
   const chargerUtilisateurs = async () => {
-    const res = await getUtilisateurs();
-    setUtilisateurs(res.data);
-  };
-
-  const chargerHopitaux = async () => {
+    setLoading(true);
     try {
-      const res = await getHopitaux();
-      setHopitaux(res.data);
+      const res = await getUtilisateurs();
+      setUtilisateurs(res.data);
     } catch (err) {
-      console.error('Erreur chargement hôpitaux');
+      setMessage('Impossible de charger les utilisateurs.');
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await ajouterUtilisateur(form);
-      setMessage('✅ Utilisateur créé avec succès !');
-      setShowForm(false);
-      setForm({ nom: '', prenom: '', email: '', mot_de_passe: '', role: 'medecin', telephone: '', hopital_id: '' });
-      chargerUtilisateurs();
-    } catch (err) {
-      setMessage(`❌ ${err.response?.data?.message || 'Erreur lors de la création'}`);
-    }
-  };
-
-  const handleModifier = async (e) => {
-    e.preventDefault();
-    try {
-      await modifierUtilisateur(utilisateurSelectionne.id, formModifier);
-      setMessage('✅ Utilisateur modifié avec succès !');
-      setShowModifier(false);
-      setUtilisateurSelectionne(null);
-      chargerUtilisateurs();
-    } catch (err) {
-      setMessage('❌ Erreur lors de la modification');
-    }
-  };
-
-  const ouvrirModifier = (u) => {
-    setUtilisateurSelectionne(u);
-    setFormModifier({ nom: u.nom, prenom: u.prenom, mot_de_passe: '', hopital_id: u.hopital_id || '' });
-    setShowModifier(true);
-    setShowForm(false);
-  };
-
-  const handleSupprimer = async (id) => {
-    if (window.confirm('Confirmer la suppression ?')) {
-      try {
-        await supprimerUtilisateur(id);
-        setMessage('✅ Utilisateur supprimé !');
-        chargerUtilisateurs();
-      } catch (err) {
-        setMessage('❌ Erreur lors de la suppression');
-      }
-    }
-  };
-
-  const roleConfig = {
-    admin: { couleur: '#e53935', bg: '#fff3f3', label: 'Administrateur' },
-    medecin: { couleur: '#1a73e8', bg: '#e8f0fe', label: 'Médecin' },
-    infirmier: { couleur: '#43a047', bg: '#e8f5e9', label: 'Infirmier' },
   };
 
   return (
     <div style={styles.page}>
-      <div style={styles.navbar}>
-        <div style={styles.navLeft}>
-          <div style={styles.navLogo}>+</div>
-          <span style={styles.navTitre}>MediDossier Bénin</span>
+      <h1 style={styles.title}>👥 Gestion des utilisateurs</h1>
+      <p style={styles.subtitle}>Liste des comptes du personnel autorisé.</p>
+
+      {message && <div style={styles.message}>{message}</div>}
+
+      <div style={styles.tableCard}>
+        <div style={styles.tableHeader}>
+          <span>Nom</span>
+          <span>Login</span>
+          <span>Rôle</span>
+          <span>Service</span>
+          <span>Actif</span>
         </div>
-        <button onClick={() => navigate('/dashboard')} style={styles.retour}>← Tableau de bord</button>
-      </div>
-
-      <div style={styles.contenu}>
-        <div style={styles.header}>
-          <div>
-            <h1 style={styles.titre}>👤 Utilisateurs</h1>
-            <p style={styles.sousTitre}>{utilisateurs.length} utilisateur(s) enregistré(s)</p>
-          </div>
-          <button onClick={() => { setShowForm(!showForm); setShowModifier(false); }} style={styles.boutonAjouter}>
-            + Nouvel Utilisateur
-          </button>
-        </div>
-
-        {message && <div style={styles.message}>{message}</div>}
-
-        {showForm && (
-          <div style={styles.card}>
-            <h3 style={styles.cardTitre}>Ajouter un utilisateur</h3>
-            <form onSubmit={handleSubmit} style={styles.form}>
-              <div style={styles.champ}>
-                <label style={styles.label}>Nom</label>
-                <input value={form.nom} onChange={e => setForm({...form, nom: e.target.value})} style={styles.input} required />
-              </div>
-              <div style={styles.champ}>
-                <label style={styles.label}>Prénom</label>
-                <input value={form.prenom} onChange={e => setForm({...form, prenom: e.target.value})} style={styles.input} required />
-              </div>
-              <div style={styles.champ}>
-                <label style={styles.label}>Email</label>
-                <input type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} style={styles.input} required />
-              </div>
-              <div style={styles.champ}>
-                <label style={styles.label}>Mot de passe</label>
-                <input type="password" value={form.mot_de_passe} onChange={e => setForm({...form, mot_de_passe: e.target.value})} style={styles.input} required />
-              </div>
-              <div style={styles.champ}>
-                <label style={styles.label}>Téléphone</label>
-                <input value={form.telephone} onChange={e => setForm({...form, telephone: e.target.value})} style={styles.input} />
-              </div>
-              <div style={styles.champ}>
-                <label style={styles.label}>Rôle</label>
-                <select value={form.role} onChange={e => setForm({...form, role: e.target.value})} style={styles.input}>
-                  <option value="medecin">Médecin</option>
-                  <option value="infirmier">Infirmier</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
-              <div style={{...styles.champ, gridColumn: 'span 2'}}>
-                <label style={styles.label}>🏥 Hôpital</label>
-                <select value={form.hopital_id} onChange={e => setForm({...form, hopital_id: e.target.value})} style={styles.input}>
-                  <option value="">-- Sélectionner un hôpital --</option>
-                  {hopitaux.map(h => (
-                    <option key={h.id} value={h.id}>{h.nom} — {h.ville}</option>
-                  ))}
-                </select>
-              </div>
-              <button type="submit" style={styles.boutonSoumettre}>Créer l'utilisateur</button>
-            </form>
-          </div>
+        {loading ? (
+          <p>Chargement...</p>
+        ) : utilisateurs.length === 0 ? (
+          <p>Aucun utilisateur trouvé.</p>
+        ) : (
+          utilisateurs.map((user) => (
+            <div key={user.id} style={styles.tableRow}>
+              <span>{user.prenom} {user.nom}</span>
+              <span>{user.login}</span>
+              <span>{user.role}</span>
+              <span>{user.service || '—'}</span>
+              <span>{user.actif ? 'Oui' : 'Non'}</span>
+            </div>
+          ))
         )}
-
-        {showModifier && utilisateurSelectionne && (
-          <div style={{...styles.card, borderLeft: '4px solid #fb8c00'}}>
-            <h3 style={styles.cardTitre}>✏️ Modifier — {utilisateurSelectionne.prenom} {utilisateurSelectionne.nom}</h3>
-            <form onSubmit={handleModifier} style={styles.form}>
-              <div style={styles.champ}>
-                <label style={styles.label}>Nom</label>
-                <input value={formModifier.nom} onChange={e => setFormModifier({...formModifier, nom: e.target.value})} style={styles.input} required />
-              </div>
-              <div style={styles.champ}>
-                <label style={styles.label}>Prénom</label>
-                <input value={formModifier.prenom} onChange={e => setFormModifier({...formModifier, prenom: e.target.value})} style={styles.input} required />
-              </div>
-              <div style={{...styles.champ, gridColumn: 'span 2'}}>
-                <label style={styles.label}>Nouveau mot de passe <span style={{color: '#aaa', fontWeight: '400'}}>(laisser vide pour ne pas changer)</span></label>
-                <input type="password" placeholder="Nouveau mot de passe..." value={formModifier.mot_de_passe} onChange={e => setFormModifier({...formModifier, mot_de_passe: e.target.value})} style={styles.input} />
-              </div>
-              <div style={{...styles.champ, gridColumn: 'span 2'}}>
-                <label style={styles.label}>🏥 Hôpital</label>
-                <select value={formModifier.hopital_id} onChange={e => setFormModifier({...formModifier, hopital_id: e.target.value})} style={styles.input}>
-                  <option value="">-- Sélectionner un hôpital --</option>
-                  {hopitaux.map(h => (
-                    <option key={h.id} value={h.id}>{h.nom} — {h.ville}</option>
-                  ))}
-                </select>
-              </div>
-              <button type="submit" style={{...styles.boutonSoumettre, backgroundColor: '#fb8c00'}}>Enregistrer les modifications</button>
-              <button type="button" onClick={() => { setShowModifier(false); setUtilisateurSelectionne(null); }} style={{...styles.boutonSoumettre, backgroundColor: '#666'}}>Annuler</button>
-            </form>
-          </div>
-        )}
-
-        <div style={styles.tableCard}>
-          <table style={styles.table}>
-            <thead>
-              <tr style={styles.thead}>
-                <th style={styles.th}>Nom complet</th>
-                <th style={styles.th}>Email</th>
-                <th style={styles.th}>Téléphone</th>
-                <th style={styles.th}>Rôle</th>
-                <th style={styles.th}>Hôpital</th>
-                <th style={styles.th}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {utilisateurs.map(u => {
-                const config = roleConfig[u.role] || { couleur: '#666', bg: '#f5f5f5', label: u.role };
-                const hopital = hopitaux.find(h => h.id === u.hopital_id);
-                return (
-                  <tr key={u.id} style={styles.tr}>
-                    <td style={styles.td}>
-                      <div style={styles.userCell}>
-                        <div style={{...styles.avatar, backgroundColor: config.bg, color: config.couleur}}>
-                          {u.prenom?.[0]}{u.nom?.[0]}
-                        </div>
-                        <strong>{u.prenom} {u.nom}</strong>
-                      </div>
-                    </td>
-                    <td style={styles.td}>{u.email}</td>
-                    <td style={styles.td}>{u.telephone}</td>
-                    <td style={styles.td}>
-                      <span style={{ backgroundColor: config.bg, color: config.couleur, padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '600' }}>
-                        {config.label}
-                      </span>
-                    </td>
-                    <td style={styles.td}>
-                      {hopital ? (
-                        <span style={styles.hopitalBadge}>{hopital.nom}</span>
-                      ) : (
-                        <span style={styles.hopitalVide}>Non assigné</span>
-                      )}
-                    </td>
-                    <td style={styles.td}>
-                      <div style={styles.actions}>
-                        <button onClick={() => ouvrirModifier(u)} style={styles.btnOrange}>✏️ Modifier</button>
-                        {u.role !== 'admin' && (
-                          <button onClick={() => handleSupprimer(u.id)} style={styles.btnRed}>🗑️</button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
       </div>
     </div>
   );
 }
 
 const styles = {
-  page: { minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: "'Segoe UI', sans-serif" },
-  navbar: { backgroundColor: 'white', padding: '14px 30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e8ecf0', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' },
-  navLeft: { display: 'flex', alignItems: 'center', gap: '10px' },
-  navLogo: { width: '34px', height: '34px', backgroundColor: '#1a73e8', color: 'white', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', fontWeight: 'bold' },
-  navTitre: { fontSize: '18px', fontWeight: 'bold', color: '#1a73e8' },
-  retour: { padding: '8px 18px', backgroundColor: 'white', color: '#1a73e8', border: '1.5px solid #1a73e8', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' },
-  contenu: { maxWidth: '1100px', margin: '0 auto', padding: '30px 20px' },
-  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' },
-  titre: { fontSize: '24px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 4px' },
-  sousTitre: { fontSize: '14px', color: '#888', margin: 0 },
-  boutonAjouter: { padding: '10px 20px', backgroundColor: '#1a73e8', color: 'white', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' },
-  message: { padding: '12px 16px', backgroundColor: '#e8f5e9', borderRadius: '10px', marginBottom: '16px', color: '#2e7d32', fontSize: '14px' },
-  card: { backgroundColor: 'white', borderRadius: '16px', padding: '24px', marginBottom: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: '1px solid #e8ecf0' },
-  cardTitre: { fontSize: '16px', fontWeight: '600', color: '#333', margin: '0 0 20px' },
-  form: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' },
-  champ: { display: 'flex', flexDirection: 'column', gap: '6px' },
-  label: { fontSize: '13px', fontWeight: '600', color: '#555' },
-  input: { padding: '10px 14px', borderRadius: '8px', border: '1.5px solid #e0e0e0', fontSize: '14px', outline: 'none', backgroundColor: '#fafafa', color: '#333' },
-  boutonSoumettre: { padding: '12px', backgroundColor: '#43a047', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: '15px', fontWeight: '600' },
-  tableCard: { backgroundColor: 'white', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: '1px solid #e8ecf0' },
-  table: { width: '100%', borderCollapse: 'collapse' },
-  thead: { backgroundColor: '#1a73e8' },
-  th: { padding: '14px 16px', textAlign: 'left', color: 'white', fontSize: '13px', fontWeight: '600' },
-  tr: { borderBottom: '1px solid #f0f0f0' },
-  td: { padding: '14px 16px', fontSize: '14px', color: '#333' },
-  userCell: { display: 'flex', alignItems: 'center', gap: '10px' },
-  avatar: { width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: '600' },
-  actions: { display: 'flex', gap: '8px' },
-  btnOrange: { padding: '6px 12px', backgroundColor: '#fff3e0', color: '#fb8c00', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' },
-  btnRed: { padding: '6px 10px', backgroundColor: '#fff3f3', color: '#e53935', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' },
-  hopitalBadge: { backgroundColor: '#e8f5e9', color: '#43a047', padding: '4px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: '600' },
-  hopitalVide: { color: '#aaa', fontSize: '12px', fontStyle: 'italic' },
+  page: { minHeight: '100vh', backgroundColor: '#f8fafc', padding: '30px', fontFamily: "'Segoe UI', sans-serif" },
+  title: { fontSize: '28px', fontWeight: '700', color: '#111827', marginBottom: '10px' },
+  subtitle: { margin: '0 0 22px', color: '#4b5563' },
+  message: { marginBottom: '16px', padding: '14px 16px', backgroundColor: '#fef3c7', color: '#92400e', borderRadius: '14px' },
+  tableCard: { backgroundColor: 'white', borderRadius: '20px', padding: '24px', boxShadow: '0 16px 36px rgba(15,23,42,0.08)' },
+  tableHeader: { display: 'grid', gridTemplateColumns: '2fr 1.4fr 1fr 1.2fr 0.8fr', gap: '16px', paddingBottom: '12px', borderBottom: '1px solid #e5e7eb', fontWeight: '700', color: '#374151' },
+  tableRow: { display: 'grid', gridTemplateColumns: '2fr 1.4fr 1fr 1.2fr 0.8fr', gap: '16px', padding: '14px 0', borderBottom: '1px solid #f3f4f6', color: '#111827' }
 };

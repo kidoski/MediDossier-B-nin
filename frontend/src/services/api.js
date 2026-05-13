@@ -1,12 +1,16 @@
 import axios from 'axios';
 
-const BASE_URL = 'https://medidossier-backend.onrender.com/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-const API = axios.create({
-  baseURL: BASE_URL,
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
-API.interceptors.request.use((config) => {
+// Ajouter le token aux requêtes
+api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -14,37 +18,63 @@ API.interceptors.request.use((config) => {
   return config;
 });
 
-// Auth
-export const login = (data) => API.post('/auth/login', data);
+// ============================================================
+// AUTHENTICATION
+// ============================================================
+export const login = (credentials) => api.post('/auth/login', credentials);
+export const getMe = () => api.get('/auth/me');
+export const register = (userData) => api.post('/auth/register', userData);
 
-// Patients
-export const getPatients = () => API.get('/patients');
-export const ajouterPatient = (data) => API.post('/patients', data);
-export const rechercherPatient = (q) => API.get(`/patients/recherche?q=${q}`);
-export const getPatient = (id) => API.get(`/patients/${id}`);
+// ============================================================
+// PATIENTS
+// ============================================================
+export const getPatients = () => api.get('/patients');
+export const getPatient = (id) => api.get(`/patients/${id}`);
+export const createPatient = (data) => api.post('/patients', data);
+export const updatePatient = (id, data) => api.put(`/patients/${id}`, data);
+export const searchPatient = (query) => api.get(`/patients/search?q=${query}`);
+export const getDossierComplet = (id) => api.get(`/patients/${id}/complet`);
 
-// Consultations
-export const creerConsultation = (data) => API.post('/consultations', data);
-export const getConsultationsPatient = (patient_id) => API.get(`/consultations/patient/${patient_id}`);
-export const getConsultation = (id) => API.get(`/consultations/${id}`);
-export const ajouterOrdonnance = (data) => API.post('/consultations/ordonnance', data);
+// ============================================================
+// CONSULTATIONS
+// ============================================================
+export const getConsultationsPatient = (patientId) =>
+  api.get(`/consultations/patient/${patientId}`);
+export const creerConsultation = (data) => api.post('/consultations', data);
 
-// Utilisateurs
-export const getUtilisateurs = () => API.get('/utilisateurs');
-export const ajouterUtilisateur = (data) => API.post('/utilisateurs', data);
-export const modifierUtilisateur = (id, data) => API.put(`/utilisateurs/${id}`, data);
-export const supprimerUtilisateur = (id) => API.delete(`/utilisateurs/${id}`);
+// ============================================================
+// CONSTANTES VITALES
+// ============================================================
+export const getConstantesPatient = (patientId) =>
+  api.get(`/constantes/patient/${patientId}`);
+export const ajouterConstantes = (data) => api.post('/vitaux', data);
 
-// Constantes vitales
-export const ajouterConstantes = (data) => API.post('/constantes', data);
-export const getConstantesPatient = (patient_id) => API.get(`/constantes/patient/${patient_id}`);
+// ============================================================
+// ANTECEDENTS
+// ============================================================
+export const getAntecedentsPatient = (patientId) =>
+  api.get(`/antecedents/patient/${patientId}`);
+export const ajouterAntecedent = (data) => api.post('/antecedents', data);
+export const supprimerAntecedent = (id) => api.delete(`/antecedents/${id}`);
 
-// Antécédents
-export const ajouterAntecedent = (data) => API.post('/antecedents', data);
-export const getAntecedentsPatient = (patient_id) => API.get(`/antecedents/patient/${patient_id}`);
-export const supprimerAntecedent = (id) => API.delete(`/antecedents/${id}`);
+// ============================================================
+// UTILISATEURS
+// ============================================================
+export const getUtilisateurs = () => api.get('/utilisateurs');
+export const ajouterUtilisateur = (data) => api.post('/utilisateurs', data);
+export const modifierUtilisateur = (id, data) => api.put(`/utilisateurs/${id}`, data);
+export const supprimerUtilisateur = (id) => api.delete(`/utilisateurs/${id}`);
+export const getHopitaux = () => api.get('/hopitaux');
 
-// Hôpitaux
-export const getHopitaux = () => API.get('/hopitaux');
-export const ajouterHopital = (data) => API.post('/hopitaux', data);
-export const supprimerHopital = (id) => API.delete(`/hopitaux/${id}`);
+// ============================================================
+// UPLOADS
+// ============================================================
+export const uploadFile = (file) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  return api.post('/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+};
+
+export default api;

@@ -26,7 +26,7 @@ export default function Constantes() {
     e.preventDefault();
     try {
       await ajouterConstantes({ ...form, patient_id });
-      setMessage('✅ Constantes vitales enregistrées !');
+      setMessage('Constantes vitales enregistrées !');
       setShowForm(false);
       setForm({ tension: '', temperature: '', poids: '', pouls: '', saturation: '', observations: '' });
       chargerDonnees();
@@ -106,7 +106,7 @@ export default function Constantes() {
             <div key={c.id} style={styles.constanteCard}>
               <div style={styles.constanteHeader}>
                 <span style={styles.dateLabel}>📅 {new Date(c.date_mesure).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
-                <span style={styles.infirmierLabel}>👩‍⚕️ {c.infirmier_prenom} {c.infirmier_nom}</span>
+                <span style={styles.infirmierLabel}>👩 {c.infirmier_prenom} {c.infirmier_nom}</span>
               </div>
               <div style={styles.constanteBody}>
                 <div style={styles.grille}>
