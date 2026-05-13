@@ -220,38 +220,159 @@ function DashboardInfirmier({ user }) {
 function DashboardAccueil({ user }) {
   const navigate = useNavigate();
   const [numeroPiece, setNumeroPiece] = useState('');
+
+  const stats = [
+    { label: 'En attente', value: 8, color: '#1a73e8', note: 'patients ce matin' },
+    { label: 'En consultation', value: 5, color: '#0b6794', note: 'en cours' },
+    { label: 'Hospitalisés', value: 3, color: '#b91c1c', note: 'ce jour' }
+  ];
+
+  const navigation = [
+    { label: 'Accueil', active: true, action: () => navigate('/dashboard') },
+    { label: 'Nouveau patient', action: () => navigate('/accueil') },
+    { label: 'Recherche', action: () => navigate('/patients') },
+    { label: 'File d\'attente', action: () => navigate('/patients') }
+  ];
+
+  const waitingList = [
+    { nom: 'Adjoua M. Koffi', piece: 'CNI-BJ-8821', heure: '07h42', type: 'Consultation', statut: 'En attente', action: 'Ouvrir' },
+    { nom: 'Brice A. Hounkpé', piece: 'RAV-00419827', heure: '08h05', type: 'Urgence', statut: 'En consultation', action: 'Voir' },
+    { nom: 'Fatoumata Diallo', piece: 'PSP-A4820031', heure: '08h31', type: 'Pansement', statut: 'En attente', action: 'Ouvrir' },
+    { nom: 'Cyriaque N. Aïzé', piece: 'CNI-BJ-3344', heure: '08h50', type: 'Consultation', statut: 'Hospitalisé', action: 'Voir' }
+  ];
+
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#eff6ff', fontFamily: "'Segoe UI', sans-serif" }}>
-      <Navbar couleur="#0891b2" user={user} />
-      <div style={{ maxWidth: 800, margin: '0 auto', padding: '32px 20px' }}>
-        <Bonjour user={user} sousTitre="Agent d'Accueil — Gestion des arrivées" couleur="#0891b2" />
-        <div style={{ backgroundColor: 'white', borderRadius: 16, padding: 28,
-          boxShadow: '0 4px 16px rgba(0,0,0,0.08)', border: '1px solid #e8ecf0', marginBottom: 24 }}>
-          <h3 style={{ margin: '0 0 16px', fontSize: 16, fontWeight: 700, color: '#333' }}>
-            🔍 Recherche rapide patient
-          </h3>
-          <div style={{ display: 'flex', gap: 12 }}>
-            <input
-              type="text"
-              placeholder="Numéro de pièce d'identité (CNI, Passeport, RAVEC...)"
-              value={numeroPiece}
-              onChange={e => setNumeroPiece(e.target.value)}
-              style={{ flex: 1, padding: '12px 16px', borderRadius: 10,
-                border: '2px solid #e0e0e0', fontSize: 15, outline: 'none' }}
-            />
-            <button
-              onClick={() => { if (numeroPiece.trim()) navigate('/accueil'); }}
-              style={{ padding: '12px 24px', backgroundColor: '#0891b2', color: 'white',
-                border: 'none', borderRadius: 10, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>
-              Rechercher
-            </button>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f4f6fb', fontFamily: "'Segoe UI', sans-serif" }}>
+      <Navbar couleur="#0b3d91" user={user} />
+      <div style={{ maxWidth: 1400, margin: '0 auto', padding: '28px 24px 40px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 20, flexWrap: 'wrap', marginBottom: 24 }}>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 600, letterSpacing: '.14em', textTransform: 'uppercase', color: '#475569', marginBottom: 8 }}>
+              SGDP — Accueil
+            </div>
+            <h1 style={{ margin: 0, fontSize: 34, fontWeight: 800, color: '#102a43' }}>
+              Tableau de bord — Accueil
+            </h1>
+          </div>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            {['Agent d\'accueil', 'Infirmier', 'Médecin', 'Administrateur'].map((label, index) => (
+              <button key={index} style={{ padding: '11px 20px', borderRadius: 999, border: '1px solid rgba(15, 23, 42, 0.12)', background: label === "Agent d'accueil" ? '#102a43' : 'white', color: label === "Agent d'accueil" ? 'white' : '#334155', fontWeight: 700, cursor: 'pointer' }}>
+                {label}
+              </button>
+            ))}
           </div>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
-          <CarteAction icone="➕" titre="Nouveau Patient" description="Enregistrer un nouveau patient" couleur="#0891b2" onClick={() => navigate('/accueil')} />
-          <CarteAction icone="👥" titre="Liste des Patients" description="Voir tous les patients et leur statut" couleur="#1a73e8" onClick={() => navigate('/patients')} />
-          <CarteAction icone="⏳" titre="Patients en Attente" description="Voir les patients en salle d'attente" couleur="#f59e0b" onClick={() => navigate('/patients')} />
-          <CarteAction icone="🏥" titre="Patients Hospitalisés" description="Voir les patients hospitalisés" couleur="#e53935" onClick={() => navigate('/patients')} />
+
+        <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: 24 }}>
+          <aside style={{ borderRadius: 24, backgroundColor: 'white', padding: 24, boxShadow: '0 24px 80px rgba(15,23,42,0.08)' }}>
+            <div style={{ marginBottom: 28 }}>
+              <div style={{ fontSize: 12, letterSpacing: '.16em', textTransform: 'uppercase', fontWeight: 700, color: '#64748b', marginBottom: 12 }}>
+                Navigation
+              </div>
+              <div style={{ display: 'grid', gap: 10 }}>
+                {navigation.map((item, index) => (
+                  <button key={index} onClick={item.action} style={{ width: '100%', textAlign: 'left', padding: '14px 18px', borderRadius: 16, border: item.active ? '1px solid #0b3d91' : '1px solid #e2e8f0', backgroundColor: item.active ? '#eff6ff' : 'white', color: item.active ? '#0b3d91' : '#475569', fontWeight: item.active ? 700 : 500, cursor: 'pointer' }}>
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: 22 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#334155', marginBottom: 12 }}>Aide rapide</div>
+              <p style={{ fontSize: 14, lineHeight: 1.7, color: '#64748b', margin: 0 }}>
+                Recherchez un patient rapidement, ouvrez un dossier existant ou ajoutez un nouveau patient en quelques secondes.
+              </p>
+            </div>
+          </aside>
+
+          <main style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 16 }}>
+              {stats.map((item, index) => (
+                <div key={index} style={{ borderRadius: 24, backgroundColor: 'white', padding: 24, boxShadow: '0 24px 80px rgba(15,23,42,0.06)', border: '1px solid #e2e8f0' }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#334155', marginBottom: 12 }}>{item.label}</div>
+                  <div style={{ fontSize: 44, fontWeight: 800, color: item.color }}>{item.value}</div>
+                  <div style={{ marginTop: 10, fontSize: 13, color: '#64748b' }}>{item.note}</div>
+                </div>
+              ))}
+            </div>
+
+            <section style={{ borderRadius: 24, backgroundColor: 'white', padding: 28, boxShadow: '0 24px 80px rgba(15,23,42,0.06)', border: '1px solid #e2e8f0' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'center', justifyContent: 'space-between', marginBottom: 22 }}>
+                <div>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: '#102a43' }}>Rechercher / Enregistrer un patient</div>
+                  <div style={{ fontSize: 14, color: '#64748b', marginTop: 6 }}>
+                    Saisir le numéro de pièce et appuyer sur Entrée — le dossier s'ouvre si le patient existe, sinon un formulaire de création apparaît.
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                  <button style={{ padding: '12px 22px', borderRadius: 16, border: '1px solid #0b3d91', background: 'white', color: '#0b3d91', fontWeight: 700, cursor: 'pointer' }}>Rechercher</button>
+                  <button style={{ padding: '12px 22px', borderRadius: 16, border: '1px solid #cbd5e1', background: 'white', color: '#475569', cursor: 'pointer' }}>Nouveau</button>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                <input
+                  type="text"
+                  placeholder="N° pièce d'identité (CNI, RAVEC, Passeport...)"
+                  value={numeroPiece}
+                  onChange={e => setNumeroPiece(e.target.value)}
+                  style={{ flex: 1, minWidth: 0, padding: '16px 18px', borderRadius: 16, border: '1px solid #cbd5e1', fontSize: 15, outline: 'none' }}
+                />
+                <button
+                  onClick={() => { if (numeroPiece.trim()) navigate('/accueil'); }}
+                  style={{ padding: '16px 26px', borderRadius: 16, border: 'none', backgroundColor: '#0b3d91', color: 'white', fontWeight: 700, cursor: 'pointer' }}>
+                  Rechercher
+                </button>
+              </div>
+            </section>
+
+            <section style={{ borderRadius: 24, backgroundColor: 'white', padding: 28, boxShadow: '0 24px 80px rgba(15,23,42,0.06)', border: '1px solid #e2e8f0' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 20 }}>
+                <div>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: '#102a43' }}>File d'attente du jour</div>
+                  <div style={{ fontSize: 14, color: '#64748b', marginTop: 6 }}>Suivi des patients attendus et en consultation.</div>
+                </div>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  <button style={{ padding: '10px 18px', borderRadius: 14, border: '1px solid #e2e8f0', background: 'white', color: '#475569', cursor: 'pointer' }}>Tous</button>
+                  <button style={{ padding: '10px 18px', borderRadius: 14, border: '1px solid #e2e8f0', background: 'white', color: '#475569', cursor: 'pointer' }}>Urgence</button>
+                  <button style={{ padding: '10px 18px', borderRadius: 14, border: '1px solid #e2e8f0', background: 'white', color: '#475569', cursor: 'pointer' }}>Hospitalisés</button>
+                </div>
+              </div>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 720 }}>
+                  <thead>
+                    <tr style={{ textAlign: 'left', color: '#64748b', fontSize: 13, textTransform: 'uppercase' }}>
+                      <th style={{ padding: '14px 16px' }}>Patient</th>
+                      <th style={{ padding: '14px 16px' }}>N° pièce</th>
+                      <th style={{ padding: '14px 16px' }}>Heure</th>
+                      <th style={{ padding: '14px 16px' }}>Type</th>
+                      <th style={{ padding: '14px 16px' }}>Statut</th>
+                      <th style={{ padding: '14px 16px' }}>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {waitingList.map((row, index) => (
+                      <tr key={index} style={{ borderTop: '1px solid #e2e8f0' }}>
+                        <td style={{ padding: '16px' }}>{row.nom}</td>
+                        <td style={{ padding: '16px', color: '#475569' }}>{row.piece}</td>
+                        <td style={{ padding: '16px', color: '#475569' }}>{row.heure}</td>
+                        <td style={{ padding: '16px', color: '#475569' }}>{row.type}</td>
+                        <td style={{ padding: '16px' }}>
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 14px', borderRadius: 999, backgroundColor: row.statut === 'En attente' ? '#f8fafc' : row.statut === 'En consultation' ? '#eff6ff' : '#fef2f2', color: row.statut === 'En attente' ? '#1e293b' : row.statut === 'En consultation' ? '#0b3d91' : '#991b1b', fontWeight: 700, fontSize: 12 }}>
+                            {row.statut}
+                          </span>
+                        </td>
+                        <td style={{ padding: '16px' }}>
+                          <button style={{ padding: '10px 16px', borderRadius: 14, border: '1px solid #e2e8f0', background: 'white', color: '#0b3d91', fontWeight: 700, cursor: 'pointer' }}>
+                            {row.action}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </main>
         </div>
       </div>
     </div>
