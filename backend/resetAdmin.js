@@ -1,73 +1,42 @@
-// resetAdmin.js — Réinitialise le compte administrateur
-// Usage : node resetAdmin.js
+// resetAdmin.js — À placer dans backend/
+// Appelé au démarrage du serveur pour configurer l'admin
 
 const bcrypt = require('bcryptjs');
-const mysql = require('mysql2/promise');
-require('dotenv').config();
 
-async function resetAdmin() {
-  let conn;
+async function resetAdmin(db) {
   try {
-    console.log('🔌 Connexion à la base de données...');
-    conn = await mysql.createConnection({
-      host: process.env.DB_HOST,
-      port: process.env.DB_PORT || 3306,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-    });
-
-    console.log('✅ Connecté !');
-
-    // Vérifier les utilisateurs existants
-    const [users] = await conn.execute('SELECT id, nom, email, login, role FROM utilisateurs');
-    console.log('\n📋 Utilisateurs actuels :');
-    console.table(users);
-
-    // Hasher le nouveau mot de passe
     const hash = await bcrypt.hash('admin', 10);
 
-    // Mettre à jour l'admin
-    const [result] = await conn.execute(
-      `UPDATE utilisateurs 
-       SET email = ?, login = ?, mot_de_passe = ? 
-       WHERE id = 1 OR role = 'Admin'`,
+    // Vérifier si admin@gmail.com existe déjà
+    const [existing] = await db.execute(
+      'SELECT id FROM utilisateurs WHERE email = ?',
+      ['admin@gmail.com']
+    );
+
+    if (existing.length > 0) {
+      console.log('✅ Admin admin@gmail.com déjà configuré.');
+      return;
+    }
+
+    // Mettre à jour l'admin existant
+    const [result] = await db.execute(
+      `UPDATE utilisateurs SET email = ?, login = ?, mot_de_passe = ? WHERE role = 'Admin'`,
       ['admin@gmail.com', 'admin@gmail.com', hash]
     );
 
     if (result.affectedRows === 0) {
-      // Admin n'existe pas, on le crée
-      console.log('\n⚠️  Aucun admin trouvé, création en cours...');
-      await conn.execute(
-        `INSERT INTO utilisateurs (nom, prenom, login, email, mot_de_passe, role) 
-         VALUES (?, ?, ?, ?, ?, ?)`,
+      await db.execute(
+        `INSERT INTO utilisateurs (nom, prenom, login, email, mot_de_passe, role) VALUES (?,?,?,?,?,?)`,
         ['Administrateur', 'Système', 'admin@gmail.com', 'admin@gmail.com', hash, 'Admin']
       );
-      console.log('✅ Admin créé !');
+      console.log('✅ Admin créé : admin@gmail.com / admin');
     } else {
-      console.log(`\n✅ Admin mis à jour (${result.affectedRows} ligne(s) modifiée(s))`);
+      console.log('✅ Admin mis à jour : admin@gmail.com / admin');
     }
 
-    // Vérification finale
-    const [check] = await conn.execute(
-      'SELECT id, nom, email, login, role FROM utilisateurs WHERE email = ?',
-      ['admin@gmail.com']
-    );
-    console.log('\n✅ Vérification :');
-    console.table(check);
-
-    console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('🔑 Identifiants de connexion :');
-    console.log('   Email    : admin@gmail.com');
-    console.log('   Password : admin');
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-
   } catch (err) {
-    console.error('\n❌ ERREUR :', err.message);
-    process.exit(1);
-  } finally {
-    if (conn) await conn.end();
+    console.error('❌ Erreur resetAdmin:', err.message);
   }
 }
 
-resetAdmin(); 
+module.exports = resetAdmin;
