@@ -21,7 +21,7 @@ async function resetDB() {
     );
 
     console.log('✅ Base de données réinitialisée !');
-    console.log('✅ Admin recréé — Email: admin@hopital.bj / MDP: admin123');
+    console.log('✅ Admin recréé — Email: toffa@admin.com / MDP: toffa');
     process.exit(0);
   } catch (err) {
     console.error('❌ Erreur :', err.message);
