@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const getUser = () => {
@@ -6,12 +6,9 @@ const getUser = () => {
   catch { return null; }
 };
 
-// ============================================================
-// DASHBOARD PRINCIPAL — redirige selon le rôle
-// ============================================================
 export default function Dashboard() {
   const user = getUser();
-  const role = user?.role;
+  const role = user?.role?.toLowerCase();
 
   if (role === 'admin') return <DashboardAdmin user={user} />;
   if (role === 'medecin') return <DashboardMedecin user={user} />;
@@ -20,17 +17,13 @@ export default function Dashboard() {
   return <DashboardAdmin user={user} />;
 }
 
-// ============================================================
-// COMPOSANTS PARTAGÉS
-// ============================================================
-function Navbar({ titre, couleur = '#1a73e8', user }) {
+function Navbar({ couleur = '#1a73e8', user }) {
   const navigate = useNavigate();
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('utilisateur');
     navigate('/login');
   };
-
   return (
     <div style={{ backgroundColor: couleur, padding: '14px 30px', display: 'flex',
       justifyContent: 'space-between', alignItems: 'center',
@@ -49,8 +42,9 @@ function Navbar({ titre, couleur = '#1a73e8', user }) {
           padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>
           {user?.role?.toUpperCase()}
         </span>
-        <button onClick={handleLogout} style={{ padding: '8px 16px', backgroundColor: 'rgba(255,255,255,0.15)',
-          color: 'white', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 8,
+        <button onClick={handleLogout} style={{ padding: '8px 16px',
+          backgroundColor: 'rgba(255,255,255,0.15)', color: 'white',
+          border: '1px solid rgba(255,255,255,0.3)', borderRadius: 8,
           fontSize: 13, cursor: 'pointer', fontWeight: 600 }}>
           Déconnexion
         </button>
@@ -105,10 +99,11 @@ function StatCard({ icone, valeur, label, couleur }) {
 function Bonjour({ user, sousTitre, couleur }) {
   const heure = new Date().getHours();
   const salut = heure < 12 ? 'Bonjour' : heure < 18 ? 'Bon après-midi' : 'Bonsoir';
-  const date = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-
+  const date = new Date().toLocaleDateString('fr-FR', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+  });
   return (
-    <div style={{ background: `linear-gradient(135deg, ${couleur}, ${couleur}dd)`,
+    <div style={{ background: `linear-gradient(135deg, ${couleur}, ${couleur}cc)`,
       borderRadius: 16, padding: '28px 32px', color: 'white', marginBottom: 28 }}>
       <h2 style={{ margin: '0 0 6px', fontSize: 26, fontWeight: 800 }}>
         {salut}, {user?.prenom} 👋
@@ -123,37 +118,28 @@ function Bonjour({ user, sousTitre, couleur }) {
 // ============================================================
 function DashboardAdmin({ user }) {
   const navigate = useNavigate();
-
   const modules = [
-    { icone: '👥', titre: 'Gestion des Patients', description: 'Voir tous les dossiers patients enregistrés', couleur: '#1a73e8', lien: '/patients' },
+    { icone: '👥', titre: 'Gestion des Patients', description: 'Voir et gérer tous les dossiers patients', couleur: '#1a73e8', lien: '/patients' },
     { icone: '👤', titre: 'Gestion des Utilisateurs', description: 'Créer et gérer les comptes du personnel médical', couleur: '#7c3aed', lien: '/utilisateurs' },
     { icone: '🩺', titre: 'Consultations', description: 'Voir toutes les consultations, urgences et références', couleur: '#059669', lien: '/patients' },
     { icone: '📊', titre: 'Rapports & Statistiques', description: 'Statistiques des activités du centre de santé', couleur: '#f59e0b', lien: '/patients' },
     { icone: '🏥', titre: 'Accueil Patient', description: 'Rechercher ou créer un dossier patient', couleur: '#0891b2', lien: '/accueil' },
-    { icone: '⚙️', titre: 'Paramètres', description: 'Configuration du système et des services', couleur: '#6b7280', lien: '/utilisateurs' },
+    { icone: '⚙️', titre: 'Paramètres Système', description: 'Configuration du système et des services', couleur: '#6b7280', lien: '/utilisateurs' },
   ];
-
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: "'Segoe UI', sans-serif" }}>
-      <Navbar titre="Admin" couleur="#1a1a2e" user={user} />
+      <Navbar couleur="#1a1a2e" user={user} />
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '32px 20px' }}>
         <Bonjour user={user} sousTitre="Tableau de bord Administrateur" couleur="#1a1a2e" />
-
-        {/* Stats rapides */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 32 }}>
           <StatCard icone="👥" valeur="—" label="Patients enregistrés" couleur="#1a73e8" />
           <StatCard icone="🩺" valeur="—" label="Consultations aujourd'hui" couleur="#059669" />
           <StatCard icone="🚨" valeur="—" label="Urgences du jour" couleur="#e53935" />
           <StatCard icone="👤" valeur="—" label="Utilisateurs actifs" couleur="#7c3aed" />
         </div>
-
-        <h3 style={{ fontSize: 16, fontWeight: 700, color: '#333', marginBottom: 16 }}>
-          Modules disponibles
-        </h3>
+        <h3 style={{ fontSize: 16, fontWeight: 700, color: '#333', marginBottom: 16 }}>Modules disponibles</h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 16 }}>
-          {modules.map((m, i) => (
-            <CarteAction key={i} {...m} onClick={() => navigate(m.lien)} />
-          ))}
+          {modules.map((m, i) => <CarteAction key={i} {...m} onClick={() => navigate(m.lien)} />)}
         </div>
       </div>
     </div>
@@ -165,47 +151,19 @@ function DashboardAdmin({ user }) {
 // ============================================================
 function DashboardMedecin({ user }) {
   const navigate = useNavigate();
-
   const actions = [
-    {
-      icone: '🔍', titre: 'Rechercher un Patient',
-      description: 'Accéder au dossier d\'un patient par numéro de pièce',
-      couleur: '#1a73e8', lien: '/patients'
-    },
-    {
-      icone: '🩺', titre: 'Nouvelle Consultation',
-      description: 'Ouvrir une consultation médicale pour un patient',
-      couleur: '#059669', lien: '/patients'
-    },
-    {
-      icone: '🚨', titre: 'Prise en charge Urgence',
-      description: 'Gérer une arrivée en urgence',
-      couleur: '#e53935', lien: '/patients'
-    },
-    {
-      icone: '📋', titre: 'Référence Patient',
-      description: 'Référer un patient vers une autre structure',
-      couleur: '#f57c00', lien: '/patients'
-    },
-    {
-      icone: '📁', titre: 'Dossiers Médicaux',
-      description: 'Consulter l\'historique complet des patients',
-      couleur: '#7c3aed', lien: '/patients'
-    },
-    {
-      icone: '🔒', titre: 'Clôturer un Dossier',
-      description: 'Archiver un dossier après clôture médicale',
-      couleur: '#6b7280', lien: '/patients'
-    },
+    { icone: '🔍', titre: 'Rechercher un Patient', description: 'Accéder au dossier par numéro de pièce', couleur: '#1a73e8', lien: '/patients' },
+    { icone: '🩺', titre: 'Nouvelle Consultation', description: 'Ouvrir une consultation médicale', couleur: '#059669', lien: '/patients' },
+    { icone: '🚨', titre: 'Prise en charge Urgence', description: 'Gérer une arrivée en urgence', couleur: '#e53935', lien: '/patients' },
+    { icone: '📋', titre: 'Référence Patient', description: 'Référer un patient vers une autre structure', couleur: '#f57c00', lien: '/patients' },
+    { icone: '📁', titre: 'Dossiers Médicaux', description: 'Consulter l\'historique complet des patients', couleur: '#7c3aed', lien: '/patients' },
+    { icone: '🔒', titre: 'Clôturer un Dossier', description: 'Archiver un dossier après clôture médicale', couleur: '#6b7280', lien: '/patients' },
   ];
-
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f0fdf4', fontFamily: "'Segoe UI', sans-serif" }}>
-      <Navbar titre="Médecin" couleur="#059669" user={user} />
+      <Navbar couleur="#059669" user={user} />
       <div style={{ maxWidth: 1000, margin: '0 auto', padding: '32px 20px' }}>
         <Bonjour user={user} sousTitre="Espace Médecin — Dossiers & Consultations" couleur="#059669" />
-
-        {/* Rappel types de passage */}
         <div style={{ display: 'flex', gap: 12, marginBottom: 28, flexWrap: 'wrap' }}>
           {[
             { label: '🩺 Consultation', couleur: '#1a73e8' },
@@ -220,14 +178,9 @@ function DashboardMedecin({ user }) {
             </span>
           ))}
         </div>
-
-        <h3 style={{ fontSize: 16, fontWeight: 700, color: '#333', marginBottom: 16 }}>
-          Actions disponibles
-        </h3>
+        <h3 style={{ fontSize: 16, fontWeight: 700, color: '#333', marginBottom: 16 }}>Actions disponibles</h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
-          {actions.map((a, i) => (
-            <CarteAction key={i} {...a} onClick={() => navigate(a.lien)} />
-          ))}
+          {actions.map((a, i) => <CarteAction key={i} {...a} onClick={() => navigate(a.lien)} />)}
         </div>
       </div>
     </div>
@@ -239,53 +192,22 @@ function DashboardMedecin({ user }) {
 // ============================================================
 function DashboardInfirmier({ user }) {
   const navigate = useNavigate();
-
   const actions = [
-    {
-      icone: '🔍', titre: 'Rechercher un Patient',
-      description: 'Trouver un patient par numéro de pièce d\'identité',
-      couleur: '#1a73e8', lien: '/patients'
-    },
-    {
-      icone: '❤️', titre: 'Constantes Vitales',
-      description: 'Saisir tension, pouls, température, SaO2, douleur',
-      couleur: '#e53935', lien: '/patients'
-    },
-    {
-      icone: '🩹', titre: 'Pansements & Soins',
-      description: 'Enregistrer un soin infirmier ou un pansement',
-      couleur: '#f59e0b', lien: '/patients'
-    },
-    {
-      icone: '🔬', titre: 'Analyses Médicales',
-      description: 'Saisir les résultats d\'analyses biomédicales',
-      couleur: '#059669', lien: '/patients'
-    },
-    {
-      icone: '🖼️', titre: 'Imagerie Médicale',
-      description: 'Uploader radiographies, échographies, scanner, IRM',
-      couleur: '#7c3aed', lien: '/patients'
-    },
-    {
-      icone: '📋', titre: 'Enquête Sociale',
-      description: 'Prise en charge, alcool, tabagisme, notes infirmières',
-      couleur: '#0891b2', lien: '/patients'
-    },
+    { icone: '🔍', titre: 'Rechercher un Patient', description: 'Trouver un patient par numéro de pièce', couleur: '#1a73e8', lien: '/patients' },
+    { icone: '❤️', titre: 'Constantes Vitales', description: 'Saisir tension, pouls, température, SaO2', couleur: '#e53935', lien: '/patients' },
+    { icone: '🩹', titre: 'Pansements & Soins', description: 'Enregistrer un soin infirmier ou pansement', couleur: '#f59e0b', lien: '/patients' },
+    { icone: '🔬', titre: 'Analyses Médicales', description: 'Saisir les résultats d\'analyses biomédicales', couleur: '#059669', lien: '/patients' },
+    { icone: '🖼️', titre: 'Imagerie Médicale', description: 'Uploader radiographies, échographies, scanner', couleur: '#7c3aed', lien: '/patients' },
+    { icone: '📋', titre: 'Enquête Sociale', description: 'Notes infirmières, prise en charge sociale', couleur: '#0891b2', lien: '/patients' },
   ];
-
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#fef3f2', fontFamily: "'Segoe UI', sans-serif" }}>
-      <Navbar titre="Infirmier" couleur="#e53935" user={user} />
+      <Navbar couleur="#e53935" user={user} />
       <div style={{ maxWidth: 1000, margin: '0 auto', padding: '32px 20px' }}>
         <Bonjour user={user} sousTitre="Espace Infirmier — Soins & Constantes" couleur="#e53935" />
-
-        <h3 style={{ fontSize: 16, fontWeight: 700, color: '#333', marginBottom: 16 }}>
-          Mes actions
-        </h3>
+        <h3 style={{ fontSize: 16, fontWeight: 700, color: '#333', marginBottom: 16 }}>Mes actions</h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
-          {actions.map((a, i) => (
-            <CarteAction key={i} {...a} onClick={() => navigate(a.lien)} />
-          ))}
+          {actions.map((a, i) => <CarteAction key={i} {...a} onClick={() => navigate(a.lien)} />)}
         </div>
       </div>
     </div>
@@ -298,25 +220,17 @@ function DashboardInfirmier({ user }) {
 function DashboardAccueil({ user }) {
   const navigate = useNavigate();
   const [numeroPiece, setNumeroPiece] = useState('');
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (numeroPiece.trim()) navigate('/accueil');
-  };
-
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#eff6ff', fontFamily: "'Segoe UI', sans-serif" }}>
-      <Navbar titre="Accueil" couleur="#0891b2" user={user} />
+      <Navbar couleur="#0891b2" user={user} />
       <div style={{ maxWidth: 800, margin: '0 auto', padding: '32px 20px' }}>
         <Bonjour user={user} sousTitre="Agent d'Accueil — Gestion des arrivées" couleur="#0891b2" />
-
-        {/* Recherche rapide */}
         <div style={{ backgroundColor: 'white', borderRadius: 16, padding: 28,
           boxShadow: '0 4px 16px rgba(0,0,0,0.08)', border: '1px solid #e8ecf0', marginBottom: 24 }}>
           <h3 style={{ margin: '0 0 16px', fontSize: 16, fontWeight: 700, color: '#333' }}>
             🔍 Recherche rapide patient
           </h3>
-          <form onSubmit={handleSearch} style={{ display: 'flex', gap: 12 }}>
+          <div style={{ display: 'flex', gap: 12 }}>
             <input
               type="text"
               placeholder="Numéro de pièce d'identité (CNI, Passeport, RAVEC...)"
@@ -325,39 +239,19 @@ function DashboardAccueil({ user }) {
               style={{ flex: 1, padding: '12px 16px', borderRadius: 10,
                 border: '2px solid #e0e0e0', fontSize: 15, outline: 'none' }}
             />
-            <button type="submit"
+            <button
+              onClick={() => { if (numeroPiece.trim()) navigate('/accueil'); }}
               style={{ padding: '12px 24px', backgroundColor: '#0891b2', color: 'white',
                 border: 'none', borderRadius: 10, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>
               Rechercher
             </button>
-          </form>
+          </div>
         </div>
-
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
-          <CarteAction
-            icone="➕" titre="Nouveau Patient"
-            description="Enregistrer un nouveau patient dans le système"
-            couleur="#0891b2"
-            onClick={() => navigate('/accueil')}
-          />
-          <CarteAction
-            icone="👥" titre="Liste des Patients"
-            description="Voir tous les patients et leur statut"
-            couleur="#1a73e8"
-            onClick={() => navigate('/patients')}
-          />
-          <CarteAction
-            icone="⏳" titre="Patients en Attente"
-            description="Voir les patients en salle d'attente"
-            couleur="#f59e0b"
-            onClick={() => navigate('/patients')}
-          />
-          <CarteAction
-            icone="🏥" titre="Patients Hospitalisés"
-            description="Voir les patients actuellement hospitalisés"
-            couleur="#e53935"
-            onClick={() => navigate('/patients')}
-          />
+          <CarteAction icone="➕" titre="Nouveau Patient" description="Enregistrer un nouveau patient" couleur="#0891b2" onClick={() => navigate('/accueil')} />
+          <CarteAction icone="👥" titre="Liste des Patients" description="Voir tous les patients et leur statut" couleur="#1a73e8" onClick={() => navigate('/patients')} />
+          <CarteAction icone="⏳" titre="Patients en Attente" description="Voir les patients en salle d'attente" couleur="#f59e0b" onClick={() => navigate('/patients')} />
+          <CarteAction icone="🏥" titre="Patients Hospitalisés" description="Voir les patients hospitalisés" couleur="#e53935" onClick={() => navigate('/patients')} />
         </div>
       </div>
     </div>
